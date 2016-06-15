@@ -14,7 +14,6 @@ IGNORED_FIELDS = (
     'msecs',
     'message',
     'msg',
-    'name',
     'pathname',
     'process',
     'relativeCreated',
@@ -55,7 +54,7 @@ class CEEFormatter(logging.Formatter):
             )
 
         for k in sorted(log_record.__dict__.keys()):
-            if k not in self.ignored_fields and log_record.__dict__[k]:
+            if k not in self.ignored_fields:
                 record[k] = log_record.__dict__[k]
 
         if record['threadName'] == 'MainThread':
