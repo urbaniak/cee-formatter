@@ -7,7 +7,7 @@ from setuptools import setup
 
 setup(
     name='cee-formatter',
-    version='0.2',
+    version='0.3',
     url='https://github.com/urbaniak/cee-formatter',
     license='BSD',
     author='Krzysztof Urbaniak',

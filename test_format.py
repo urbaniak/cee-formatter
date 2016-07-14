@@ -1,12 +1,13 @@
 import datetime
 import json
 import logging
+
+from cee_formatter import CEEFormatter
+
 try:
     from StringIO import StringIO
 except ImportError:
     from io import StringIO
-
-from cee_formatter import CEEFormatter
 
 
 def test_datetime_format():
