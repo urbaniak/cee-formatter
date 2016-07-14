@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-
 """
 CEE logging module formatter.
 """

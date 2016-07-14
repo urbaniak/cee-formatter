@@ -1,8 +1,8 @@
-import datetime
 import json
 import logging
 import traceback
 from collections import OrderedDict
+from datetime import date, datetime
 
 IGNORED_FIELDS = (
     'args',
@@ -14,6 +14,7 @@ IGNORED_FIELDS = (
     'msecs',
     'message',
     'msg',
+    'name',
     'pathname',
     'process',
     'relativeCreated',
@@ -25,12 +26,12 @@ class CEEFormatter(logging.Formatter):
     def __init__(self, *args, **kwargs):
         self.ignored_fields = kwargs.get('ignored_fields', IGNORED_FIELDS)
 
-        super().__init__(*args, **kwargs)
+        super(CEEFormatter, self).__init__(*args, **kwargs)
 
     def jsonhandler(self, obj):
-        if isinstance(obj, datetime.datetime):
+        if isinstance(obj, datetime) and self.datefmt:
             return obj.strftime(self.datefmt)
-        elif isinstance(obj, datetime.date):
+        elif isinstance(obj, date) or isinstance(obj, datetime):
             return obj.isoformat()
         try:
             return str(obj)
@@ -47,6 +48,7 @@ class CEEFormatter(logging.Formatter):
         record['pid'] = log_record.process
         record['tid'] = log_record.thread
         record['pri'] = log_record.levelname
+        record['logger'] = log_record.name
 
         if log_record.exc_info:
             record['exception'] = '\n'.join(
