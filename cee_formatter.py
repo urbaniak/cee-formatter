@@ -24,9 +24,16 @@ IGNORED_FIELDS = (
 
 class CEEFormatter(logging.Formatter):
     def __init__(self, *args, **kwargs):
-        self.ignored_fields = kwargs.get('ignored_fields', IGNORED_FIELDS)
+        """The following keyword arguments are specifi to CEEFormatter:
+            ignored_fields: list of strings. This fields will not be written to the 
+                            json record.
+        The rest of the arguments are passed to logging.Formatter.
+        """
+        _kwargs = dict(kwargs)
+        
+        self.ignored_fields = _kwargs.pop('ignored_fields', IGNORED_FIELDS)
 
-        super(CEEFormatter, self).__init__(*args, **kwargs)
+        super(CEEFormatter, self).__init__(*args, **_kwargs)
 
     def jsonhandler(self, obj):
         if isinstance(obj, datetime) and self.datefmt:
