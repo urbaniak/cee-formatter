@@ -27,11 +27,15 @@ class CEEFormatter(logging.Formatter):
         """The following keyword arguments are specifi to CEEFormatter:
             ignored_fields: list of strings. This fields will not be written to the 
                             json record.
+            terminate: If True, the output string is newline-terminated. This is necessary
+                       when using the syslog protocol over TCP, or else the messages will
+                       not be received correctly. Default: False.
         The rest of the arguments are passed to logging.Formatter.
         """
         _kwargs = dict(kwargs)
-        
+
         self.ignored_fields = _kwargs.pop('ignored_fields', IGNORED_FIELDS)
+        self._terminate = _kwargs.pop('terminate', False)
 
         super(CEEFormatter, self).__init__(*args, **_kwargs)
 
@@ -72,6 +76,8 @@ class CEEFormatter(logging.Formatter):
         if record['processName'] == 'MainProcess':
             del record['processName']
 
-        return "@cee: %s" % (
+        _template =  "@cee: %s\n" if self._terminate else "@cee: %s"
+            
+        return _template % (
             json.dumps(record, default=self.jsonhandler)
         )
