@@ -30,12 +30,23 @@ class CEEFormatter(logging.Formatter):
             terminate: If True, the output string is newline-terminated. This is necessary
                        when using the syslog protocol over TCP, or else the messages will
                        not be received correctly. Default: False.
+            colon_start: If True, the the string ": " is prepended to the @cee cookie. this
+                       is neccesary for the correct parsing of the message by rsyslog/mmjsonparse.
+                       if it is missing, you will get a message about a missing JSON cookie.
+                       (default: True)
         The rest of the arguments are passed to logging.Formatter.
         """
         _kwargs = dict(kwargs)
 
         self.ignored_fields = _kwargs.pop('ignored_fields', IGNORED_FIELDS)
-        self._terminate = _kwargs.pop('terminate', False)
+
+        terminate = _kwargs.pop('terminate', False)
+        colon_start = _kwargs.pop('colon_start', True)
+
+        self._template = ((': ' if colon_start else '')
+                           + '@cee: %s'
+                           + ('\n' if terminate else '')
+                         )
 
         super(CEEFormatter, self).__init__(*args, **_kwargs)
 
@@ -76,8 +87,6 @@ class CEEFormatter(logging.Formatter):
         if record['processName'] == 'MainProcess':
             del record['processName']
 
-        _template =  "@cee: %s\n" if self._terminate else "@cee: %s"
-            
-        return _template % (
+        return self._template % (
             json.dumps(record, default=self.jsonhandler)
         )
