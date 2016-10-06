@@ -92,7 +92,7 @@ root:
 
 ### rsyslog config
 
-Entries are inserted into a db called "logs" into a collection named "destinationx".
+Entries are inserted into a db called "logs" into a collection named "cee".
 
 ```
 #################
@@ -115,15 +115,22 @@ input(type="imtcp" port="13514" Ruleset="mongodb")
 template(name="mongodball" type="subtree" subtree="$!")
 
 ruleset(name="mongodb") {
-        action(type="mmjsonparse")
-        if $parsesuccess == "OK" then {
-                set $!time = $timestamp;
-                set $!sys = $hostname;
-                set $!procid = $syslogtag;
-                set $!syslog_fac = $syslogfacility;
-                set $!syslog_sever = $syslogpriority;
-                set $!pid = $procid;
-                action(type="ommongodb" server="127.0.0.1" db="logs" collection="destinationx" template="mongodball")
+        if $programname == "rsyslogd" then {
+                action(type="ommongodb" server="127.0.0.1" db="logs" collection="rsyslog")
+        } else {
+                action(type="mmjsonparse")
+                if $parsesuccess == "OK" then {
+                        set $!host = $hostname;
+
+                        set $!syslog!timestamp = $timereported;
+                        set $!syslog!time_recvd = $timegenerated;
+                        # set $!syslog!procid = $syslogtag;
+                        set $!syslog!fac = $syslogfacility;
+                        set $!syslog!sev = $syslogpriority;
+                        set $!syslog!pri = $syslogpriority-text;
+                        set $!syslog!pid = $procid;
+                        action(type="ommongodb" server="127.0.0.1" db="logs" collection="cee" template="mongodball")
                 }
         }
+ }
 ```
