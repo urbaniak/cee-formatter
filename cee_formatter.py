@@ -43,7 +43,8 @@ class CEEFormatter(logging.Formatter):
     def format(self, log_record):
         record = OrderedDict()
 
-        record['time'] = self.formatTime(log_record)
+        record['time'] = datetime.utcfromtimestamp(log_record.created)
+
         record['msg'] = log_record.getMessage()
         record['pid'] = log_record.process
         record['tid'] = log_record.thread
