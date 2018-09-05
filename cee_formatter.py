@@ -4,6 +4,7 @@ import traceback
 from collections import OrderedDict
 from datetime import date, datetime
 
+
 IGNORED_FIELDS = (
     'args',
     'asctime',
@@ -45,10 +46,10 @@ class CEEFormatter(logging.Formatter):
 
         record['time'] = datetime.utcfromtimestamp(log_record.created)
 
-        record['msg'] = log_record.getMessage()
+        record['message'] = log_record.getMessage()
         record['pid'] = log_record.process
         record['tid'] = log_record.thread
-        record['pri'] = log_record.levelname
+        record['level'] = log_record.levelname
         record['logger'] = log_record.name
 
         if log_record.exc_info:
@@ -57,7 +58,7 @@ class CEEFormatter(logging.Formatter):
             )
 
         for k in sorted(log_record.__dict__.keys()):
-            if k not in self.ignored_fields:
+            if log_record.__dict__[k] is not None and k not in self.ignored_fields:
                 record[k] = log_record.__dict__[k]
 
         if record['threadName'] == 'MainThread':
@@ -66,6 +67,7 @@ class CEEFormatter(logging.Formatter):
         if record['processName'] == 'MainProcess':
             del record['processName']
 
-        return "@cee: %s" % (
+        return '%s @cee: %s' % (
+            record['message'].replace('\n', ' '),
             json.dumps(record, default=self.jsonhandler)
         )
